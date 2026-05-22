@@ -15,7 +15,7 @@ const ErrorCodeMax ErrorCode = "max"
 func ErrorResponse(c *gin.Context, err error, status int, errorCode ErrorCode) {
 	c.JSON(status, models.ErrorResponse{
 		Success:   false,
-		Error_msg: err.Error(),
+		ErrorMassage: err.Error(),
 		ErrorCode: string(errorCode),
 	})
 }

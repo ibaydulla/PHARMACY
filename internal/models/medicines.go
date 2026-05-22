@@ -9,7 +9,3 @@ type Medicines struct {
 	CategoryID  int    `json:"category_id"`
 }
 
-type MedicinesErrorResponse struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
-}

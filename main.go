@@ -20,12 +20,16 @@ func main() {
 
 	// HTTP serve
 	r := gin.Default()
-
 	rg := r.Group("/api")
 	controllers.UserRoute(rg)
+	controllers.PharmacyRoute(rg)
+	controllers.MedicinesRoute(rg)
+	controllers.OrderRoute(rg)
+	controllers.CategoryRoute(rg)
 	// Start server on port 8080 (default)
 	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run(":8080");
+	 err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
 	}

@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/ibaydulla/internal/models"
 	"github.com/ibaydulla/internal/utils"
@@ -13,10 +12,6 @@ type Orderfilter struct {
 	Limit  int
 	Offset int
 	Search string
-}
-
-func LenStrOrder(l []any) string {
-	return strconv.Itoa(len(l))
 }
 
 func Orderlist(c context.Context, f Orderfilter, moreArg ...int) ([]models.Order, error) {

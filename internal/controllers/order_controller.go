@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ibaydulla/internal/models"
 	"github.com/ibaydulla/internal/repositories"
+	"github.com/ibaydulla/internal/utils"
 )
 
 func Orderlist(c *gin.Context) {
@@ -13,23 +14,17 @@ func Orderlist(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offsetStr := c.Query("offset")
 	offset, _ := strconv.Atoi(offsetStr)
-	list, err := repositories.Userlist(c, repositories.Userfilter{
+	list, err := repositories.Orderlist(c, repositories.Orderfilter{
 		Limit:  limit,
 		Offset: offset,
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{
-			"success":   false,
-			"error_msg": err.Error(),
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"succes": true,
-		"data":   list,
-	})
+	utils.SuccessResponse(c, list)
 }
 
 func OrderCreate(c *gin.Context) {
@@ -37,47 +32,34 @@ func OrderCreate(c *gin.Context) {
 	var user models.Order
 
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(400, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	_, err := repositories.OrderCreate(c.Request.Context(), user)
 
 	if err != nil {
-		c.JSON(400, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"succes": true,
-	})
+	utils.SuccessResponse(c, "")
 }
 
 func OrderDelete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(400, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.OrderDelete(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
 }
 
 func OrderUpdate(c *gin.Context) {
@@ -85,32 +67,23 @@ func OrderUpdate(c *gin.Context) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(400, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	var req models.Order
 
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(400, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.OrderUpdate(c.Request.Context(), id, req)
 	if err != nil {
-		c.JSON(500, models.OrderErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
 }
 
 func OrderRoute(rg *gin.RouterGroup) {

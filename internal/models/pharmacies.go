@@ -6,8 +6,3 @@ type Pharmacy struct {
 	Address       string `json:"address"`
 	Pharmacyhours string `json:"pharmacy_hours"`
 }
-
-type PharmacyErrorResponse struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
-}

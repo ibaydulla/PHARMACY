@@ -8,7 +8,15 @@ type User struct {
 	Role     string `json:"role"`
 }
 
-type UserErrorResponse struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
+type ErrorResponse struct {
+	Success      bool   `json:"success`
+	ErrorMassage string `json:"error_msg"`
+	ErrorCode    string `json:"error_code"`
+}
+
+type UserResponse struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 }

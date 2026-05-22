@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ibaydulla/internal/models"
 	"github.com/ibaydulla/internal/repositories"
+	"github.com/ibaydulla/internal/utils"
 )
 
 func Pharmacylist(c *gin.Context) {
@@ -22,65 +23,48 @@ func Pharmacylist(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{
-			"success":   false,
-			"error_msg": err.Error(),
-		})
+	utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"succes": true,
-		"data":   list,
-	})
+	utils.SuccessResponse(c, list)
+	
 }
 
 func PharmacyCreate(c *gin.Context) {
 
 	var pharmacy models.Pharmacy
 
-	if err := c.BindJSON(&pharmacy); err != nil {
-		c.JSON(400, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+	if err := c.BindJSON(&pharmacy); 
+	err != nil {
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	_, err := repositories.PharmacyCreate(c.Request.Context(), pharmacy)
 
 	if err != nil {
-		c.JSON(400, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"succes": true,
-	})
+	utils.SuccessResponse(c, "")
 }
 
 func PharmacyDelete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(400, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.PharmacyDelete(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
 }
 
 func PharmacyUpdate(c *gin.Context) {
@@ -88,32 +72,23 @@ func PharmacyUpdate(c *gin.Context) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(400, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	var req models.Pharmacy
 
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(400, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.PharmacyUpdate(c.Request.Context(), id, req)
 	if err != nil {
-		c.JSON(500, models.PharmacyErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
 }
 
 func PharmacyRoute(rg *gin.RouterGroup) {

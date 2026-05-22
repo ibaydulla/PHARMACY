@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ibaydulla/internal/models"
 	"github.com/ibaydulla/internal/repositories"
+	"github.com/ibaydulla/internal/utils"
 )
 
 func Categorylist(c *gin.Context) {
@@ -21,65 +22,48 @@ func Categorylist(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(500, gin.H{
-			"success":   false,
-			"error_msg": err.Error(),
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"succes": true,
-		"data":   list,
-	})
+	utils.SuccessResponse(c, list)
+
 }
 
 func CategoryCreate(c *gin.Context) {
 
 	var category models.Category
 
-	if err := c.BindJSON(&category); err != nil {
-		c.JSON(400, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+	if err := c.BindJSON(&category); 
+	err != nil {
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	_, err := repositories.CategoryCreate(c.Request.Context(), category)
 
 	if err != nil {
-		c.JSON(400, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"succes": true,
-	})
+	utils.SuccessResponse(c, "")
 }
 
 func CategoryDelete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(400, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.CategoryDelete(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
 
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
+	
 }
 
 func CategoryUpdate(c *gin.Context) {
@@ -87,32 +71,23 @@ func CategoryUpdate(c *gin.Context) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(400, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	var req models.Category
 
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(400, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 400, utils.ErrorCodeRequired)
 		return
 	}
 
 	err = repositories.CategoryUpdate(c.Request.Context(), id, req)
 	if err != nil {
-		c.JSON(500, models.CategoryErrorResponse{
-			Message: err.Error(),
-			Code:    "400",
-		})
+		utils.ErrorResponse(c, err, 500, utils.ErrorCodeRequired)
 		return
 	}
-	c.JSON(200, "ok")
+	utils.SuccessResponse(c, "")
 }
 
 func CategoryRoute(rg *gin.RouterGroup) {

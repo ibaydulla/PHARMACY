@@ -6,8 +6,3 @@ type Order struct {
 	Price    string `json:"price"`
 	Description string `json:"description"`
 }
-
-type OrderErrorResponse struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
-}
