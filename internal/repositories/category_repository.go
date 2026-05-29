@@ -13,7 +13,6 @@ type Categoryfilter struct {
 	Limit  int
 	Offset int
 	Search string
-	
 }
 
 func LenStrcategory(l []any) string {

@@ -63,7 +63,7 @@ func OrderUpdate(c context.Context, id int, req models.Order) error {
 
 	_, err := db.Exec(c,
 		`UPDATE orders
-		 SET name=$1, price=$2, description=$3, 
+		 SET name=$1, price=$2, description=$3
 		 WHERE id=$4`,
 		req.ID, req.Name, req.Price, req.Description,
 	)

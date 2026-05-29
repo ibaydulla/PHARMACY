@@ -73,7 +73,7 @@ func MedicinesUpdate(c context.Context, id int, req models.Medicines) error {
 
 	_, err := db.Exec(c,
 		`UPDATE users 
-		 SET name=$1, description=$2, price=$3, new_price=$4, category_id=$5, 
+		 SET name=$1, description=$2, price=$3, new_price=$4, category_id=$5
 		 WHERE id=$6`,
 		req.ID, req.Name, req.Description, req.Price, req.NewPrice, req.CategoryID,
 	)
