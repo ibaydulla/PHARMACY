@@ -1,25 +1,148 @@
 package controllers
-func Register(w http.ResponseWriter, r *http.Request) {
 
-	var user models.User
+import (
+"net/http"
+"github.com/gin-gonic/gin"
 
-	json.NewDecoder(r.Body).Decode(&user)
+"github.com/ibaydulla/internal/models"
+"github.com/ibaydulla/internal/repositories"
+"github.com/ibaydulla/internal/utils"
 
-	hashedPassword, err := utils.HashPassword(user.Password)
 
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+)
+
+func AuthRoute(rg *gin.RouterGroup) {
+
+auth := rg.Group("/auth")
+
+auth.POST("/register", Register)
+auth.POST("/login", Login)
+auth.POST("/logout", Logout)
+
+
+}
+
+func Register(c *gin.Context) {
+
+var user models.User
+
+if err := c.ShouldBindJSON(&user); err != nil {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+hashedPassword, err := utils.HashPassword(user.Password)
+if err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+user.Password = hashedPassword
+
+newUser, err := repositories.UserCreate(
+	c.Request.Context(),
+	user,
+)
+
+if err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+c.JSON(http.StatusCreated, gin.H{
+	"message": "user created",
+	"user":    newUser,
+})
+
+
+}
+
+func Login(c *gin.Context) {
+
+
+var req models.LoginRequest
+
+if err := c.ShouldBindJSON(&req); err != nil {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+users, err := repositories.Userlist(
+	c.Request.Context(),
+	repositories.Userfilter{},
+)
+
+if err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+var user models.User
+found := false
+
+for _, u := range users {
+
+	if u.Email == req.Email {
+		user = u
+		found = true
+		break
 	}
+}
 
-	user.Password = hashedPassword
+if !found {
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"error": "user not found",
+	})
+	return
+}
 
-	newUser, err := repositories.UserCreate(r.Context(), user)
+if err := utils.CheckPassword(
+	req.Password,
+	user.Password,
+); err != nil {
 
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"error": "wrong password",
+	})
+	return
+}
 
-	json.NewEncoder(w).Encode(newUser)
+token, err := utils.GenerateJWT(
+	user.ID,
+	user.Role,
+)
+
+if err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
+	return
+}
+
+c.JSON(http.StatusOK, gin.H{
+	"message": "login successful",
+	"token":   token,
+})
+
+
+}
+
+func Logout(c *gin.Context) {
+
+
+c.JSON(http.StatusOK, gin.H{
+	"message": "logout successful",
+})
+
+
 }
