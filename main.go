@@ -1,32 +1,49 @@
+package main
+
+import (
+"context"
+"fmt"
+"log"
+"os"
+"github.com/gin-gonic/gin"
+
+"github.com/ibaydulla/internal/controllers"
+"github.com/ibaydulla/internal/utils"
+
+)
+
 func main() {
 
-	connStr := fmt.Sprintf(
-		"user=%s dbname=%s host=%s password=%s sslmode=disable connect_timeout=5",
-		"postgres",
-		"pharmacy_db",
-		"localhost",
-		"5432",
-	)
+// Database connection
+connStr := fmt.Sprintf(
+	"user=%s dbname=%s host=%s password=%s sslmode=disable connect_timeout=5",
+	"postgres",
+	"pharmacy_db",
+	"localhost",
+	"123456", 
+)
 
-	utils.ConnectDB(connStr)
-	defer utils.GetDB().Close(context.Background())
+utils.ConnectDB(connStr)
+defer utils.GetDB().Close(context.Background())
 
-	r := gin.Default()
+// Gin router
+r := gin.Default()
+api := r.Group("/api")
 
-	rg := r.Group("/api")
+// Auth
+controllers.AuthRoute(api)
 
-	// Auth
-	controllers.AuthRoute(rg)
+// Existing routes
+controllers.UserRoute(api)
+controllers.PharmacyRoute(api)
+controllers.MedicinesRoute(api)
+controllers.OrderRoute(api)
+controllers.CategoryRoute(api)
 
-	// Existing Routes
-	controllers.UserRoute(rg)
-	controllers.PharmacyRoute(rg)
-	controllers.MedicinesRoute(rg)
-	controllers.OrderRoute(rg)
-	controllers.CategoryRoute(rg)
+// Run server
+if err := r.Run(":8080"); err != nil {
+	log.Println(err)
+	os.Exit(1)
+}
 
-	if err := r.Run(":8080"); err != nil {
-		log.Fatalln(err)
-		os.Exit(1)
-	}
 }
