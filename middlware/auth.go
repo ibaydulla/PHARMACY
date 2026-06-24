@@ -31,6 +31,26 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// role
+		claims, ok := token.Claims.(jwt.MapClaims)
+
+		if !ok {
+			http.Error(w, "invalid claims", 401)
+			return
+		}
+
+		role, ok := claims["role"].(string)
+
+		if !ok {
+			http.Error(w, "role not found", 401)
+			return
+		}
+
+		if role != "admin" {
+			http.Error(w, "forbidden", 403)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
