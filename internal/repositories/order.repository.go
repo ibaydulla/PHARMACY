@@ -44,6 +44,19 @@ func Orderlist(c context.Context, f Orderfilter, moreArg ...int) ([]models.Order
 	return list, nil
 }
 
+func OrderUpdate(c context.Context, id int, req models.Order) error {
+	db := utils.GetDB()
+
+	_, err := db.Exec(c,
+		`UPDATE orders
+		 SET name=$1, price=$2, description=$3
+		 WHERE id=$4`,
+		req.ID, req.Name, req.Price, req.Description,
+	)
+
+	return err
+}
+
 func OrderCreate(c context.Context, order models.Order) (models.Order, error) {
 
 	_, err := utils.GetDB().Exec(c,
@@ -58,18 +71,7 @@ func OrderCreate(c context.Context, order models.Order) (models.Order, error) {
 	return order, nil
 }
 
-func OrderUpdate(c context.Context, id int, req models.Order) error {
-	db := utils.GetDB()
 
-	_, err := db.Exec(c,
-		`UPDATE orders
-		 SET name=$1, price=$2, description=$3
-		 WHERE id=$4`,
-		req.ID, req.Name, req.Price, req.Description,
-	)
-
-	return err
-}
 
 func OrderDelete(c context.Context, id int) error {
 	db := utils.GetDB()
